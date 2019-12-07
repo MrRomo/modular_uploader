@@ -1,0 +1,30 @@
+{
+  "name": "uploaderator",
+  "version": "1.0.0",
+  "description": "A module for prepare, transform and conver any photo, upload to the cloud (AWS,Azure,GCloud) and return the schema ready to save on data base.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrRomo/Uploaderator.git"
+  },
+  "keywords": [
+    "upload",
+    "photo",
+    "file",
+    "convert",
+    "crop",
+    "cloud"
+  ],
+  "author": "Ricardo Romo",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MrRomo/Uploaderator/issues"
+  },
+  "homepage": "https://github.com/MrRomo/Uploaderator#readme",
+  "dependencies": {
+    "sharp": "^0.23.4"
+  }
+}
