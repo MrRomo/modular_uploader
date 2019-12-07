@@ -20,10 +20,10 @@ const uploaderator = new uploader.uploader_s3(env)
 All modules methods, are async functions, the "data" param, is a buffer array from the image to you want upload.
 
 ``` js
-    async crop(data, { width, height })
-    async convert(data, format)
-    async prepare(data, params)
-    async upload(data, params) 
+async crop(data, { width, height })
+async convert(data, format)
+async prepare(data, params)
+async upload(data, params) 
 ``` 
 
 Until now, the module only upload to AWS, but in the future works with Azure and Google Cloud.
