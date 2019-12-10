@@ -1,10 +1,10 @@
-# Uploaderator
+# Modular Uploader
 A module for prepare, transform and conver any photo, upload to the cloud (AWS,Azure,GCloud) and return the schema ready to save on data base.
 The way to use is:
 - Import the module an instance with env variables
 
 ``` js
-const uploader = require('./AWSUploaderModule')
+const uploader = require('./modular_uploader')
 
 const env = {
 	AWS_ACCESS_KEY: '<your access key>',
