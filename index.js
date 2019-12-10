@@ -24,32 +24,48 @@ class uploader_s3 {
     async convert(data, format) {
         return await sharp(data).toFormat(format).toBuffer()
     }
-    async prepare(data, params) {
-        data = await this.crop(data, params.size)
-        data = await this.convert(data, params.format)
-        params.filename = uuid() + '.' + params.format
-        params.key = params.path + '/' + params.filename //ruta del archivo
-        this.uploadParams.Body = data
-        this.uploadParams.Key = params.key
-        params.bucket = this.uploadParams.Bucket
-        return { database: params, params: this.uploadParams }
+    async prepare(data, { path, format, size }) {
+        data = await this.crop(data, size)
+        data = await this.convert(data, format)
+        const uploadParams = this.uploadParams
+        const database = {}
+        const filename = uuid() + '.' + format
+        database.filename = filename
+        uploadParams.Key = database.Key = path + '/' + filename //ruta del archivo
+        uploadParams.Body = data
+        database.Bucket = uploadParams.Bucket
+        database.path = path
+        database.size = Math.round(data.byteLength / 1024)
+
+        const result = {
+            database,
+            uploadParams,
+            result: null,
+            error: null
+        }
+        return result
     }
     async upload(data, params) {
-        params = await this.prepare(data, params)
-        console.log('Tamaño de la foto:', Math.round(params.params.Body.byteLength / 1024), ' KB')
-
-        const res = await new Promise((resolve, reject) => {
-            this.s3client.upload(params.params, (err, data) => {
-                if (err == null) {
-                    console.log(`File uploaded successfully. ${data.Location}`);
-                    resolve(params.database)
-                } else {
-                    params.database.result = err
-                    reject(params.database)
-                }
+        try {
+            const result = await this.prepare(data, params)
+            console.log('Tamaño de la foto:', Math.round(result.database.size), ' KB')
+            const res = await new Promise((resolve, reject) => {
+                this.s3client.upload(result.uploadParams, (err, data) => {
+                    if (err == null) {
+                        result.result = `File uploaded successfully. ${data.Location}`
+                        resolve(result)
+                    } else {
+                        result.error = err.message
+                        reject(result)
+                    }
+                })
             })
-        })
-        return res
+            return res
+        } catch (error) {
+            return (error.error) ? error : { error };
+
+
+        }
     }
 }
 
