@@ -1,6 +1,7 @@
 const aws = require('aws-sdk');
 const sharp = require('sharp')
 const uuid = require('uuid/v4')
+const FileType = require('file-type');
 
 class uploader_s3 {
     constructor(env) {
@@ -24,9 +25,11 @@ class uploader_s3 {
     async convert(data, format) {
         return await sharp(data).toFormat(format).toBuffer()
     }
-    async prepare(data, { path, format, size }) {
-        data = await this.crop(data, size)
-        data = await this.convert(data, format)
+    async prepare(data, { path, format, size }, isPhoto=true) {
+        if (isPhoto) {
+            data = await this.crop(data, size)
+            data = await this.convert(data, format)
+        }
         const uploadParams = this.uploadParams
         const database = {}
         const filename = uuid() + '.' + format
@@ -45,10 +48,12 @@ class uploader_s3 {
         }
         return result
     }
-    async upload(data, params) {
+    async upload(data, params, isPhoto = true) {
         try {
-            const result = await this.prepare(data, params)
-            console.log('Tamaño de la foto:', Math.round(result.database.size), ' KB')
+            const { ext } = await FileType.fromBuffer(data)
+            params.format = (params.format) ? params.format : ext
+            const result = await this.prepare(data, params, isPhoto)
+            console.log('Tamaño del archivo:', Math.round(result.database.size), ' KB - Format: ', params.format)
             const res = await new Promise((resolve, reject) => {
                 this.s3client.upload(result.uploadParams, (err, data) => {
                     if (err == null) {
@@ -63,8 +68,6 @@ class uploader_s3 {
             return res
         } catch (error) {
             return (error.error) ? error : { error };
-
-
         }
     }
 }
